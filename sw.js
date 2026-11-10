@@ -1,7 +1,7 @@
 // Service worker do Obrativa: permite instalar o atalho e abrir o app sem
 // internet. A página vem sempre da rede quando há conexão (para receber as
 // atualizações); sem conexão, usa a última cópia guardada.
-const CACHE = 'obrativa-v1'
+const CACHE = 'obrativa-v2'
 const BASE = ['./', './index.html', './manifest.webmanifest', './icones/icon-192.png', './icones/icon-512.png', './icones/apple-touch-icon.png']
 
 self.addEventListener('install', (e) => {
@@ -19,7 +19,8 @@ self.addEventListener('fetch', (e) => {
   // Só arquivos do próprio app; a nuvem (Supabase) passa direto, sem cache
   if (url.origin !== self.location.origin) return
   e.respondWith(
-    fetch(req)
+    // no-cache: sempre confere com o servidor (o cache do navegador não segura versão antiga)
+    fetch(req, { cache: 'no-cache' })
       .then((resp) => {
         if (resp.ok) { const copia = resp.clone(); caches.open(CACHE).then((c) => c.put(req, copia)) }
         return resp
